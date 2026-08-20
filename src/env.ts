@@ -1,29 +1,34 @@
 /**
- * Environment bindings type definition
+ * Environment contract for the extract Worker.
  *
- * Extends the auto-generated CloudflareBindings with secrets that come from
- * .dev.vars locally or `wrangler secret put` in production.
+ * Bindings and plaintext `vars` come from wrangler.jsonc and are generated
+ * into `Cloudflare.Env` by `npm run cf-typegen`. Regenerate after every
+ * wrangler.jsonc change so the compiler catches drift instead of production
+ * catching it.
+ *
+ * Generated members:
+ *   BROWSER        BrowserRun               Browser Run, quickAction, no API token
+ *   ASSETS         Fetcher                  static files in public/
+ *   EXTRACT_MCP    DurableObjectNamespace   backs the MCP server at /mcp
+ *   NETWORK        string                   CAIP-2 id, "eip155:8453" for Base
+ *   PRICE          string                   per-call price, "$0.01"
+ *   PAY_TO         string                   your USDC receiving address on Base
+ *   SERVICE_ORIGIN string                   public https origin
+ *   SERVICE_NAME   string                   Bazaar serviceName
+ *
+ * Secrets are declared below and set with `wrangler secret put <NAME>`.
  */
-
-import type { JWTPayload } from "./jwt";
-
-export interface Env extends CloudflareBindings {
-	/** Secret for signing JWT tokens - set via .dev.vars locally or `wrangler secret put` in production */
-	JWT_SECRET: string;
+export interface Env extends Cloudflare.Env {
+	/** CDP API key id. Authenticates the Coinbase x402 facilitator. */
+	CDP_API_KEY_ID: string;
+	/** CDP API key secret. */
+	CDP_API_KEY_SECRET: string;
 	/**
-	 * Optional origin URL for External Origin mode.
-	 * When set, requests are rewritten to this URL instead of using DNS-based routing.
-	 * Use this to proxy to another Worker on a Custom Domain or any external service.
+	 * Optional. Private key of a throwaway, lightly funded Base wallet used by
+	 * `npm run self-pay` and by the weekly Bazaar keepalive cron. Leave unset
+	 * and the keepalive no-ops.
 	 */
-	ORIGIN_URL?: string;
-	/** Optional: Service Binding to origin Worker */
-	ORIGIN_SERVICE?: Fetcher;
+	BUYER_PRIVATE_KEY?: string;
 }
 
-/** Full app context type for Hono */
-export interface AppContext {
-	Bindings: Env;
-	Variables: {
-		auth?: JWTPayload;
-	};
-}
+export type AppContext = { Bindings: Env };

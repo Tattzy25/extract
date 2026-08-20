@@ -1,7 +1,12 @@
-# Secrets for local development (config vars go in wrangler.jsonc)
-# Copy this file to .dev.vars and fill in your values
+# Copy to .dev.vars for local development. Never commit .dev.vars.
+# In production these are set with `wrangler secret put <NAME>`.
 
-# JWT secret for signing authentication tokens
-# Generate a secure random secret with:
-# node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-JWT_SECRET=your-secret-key-here
+# Coinbase Developer Platform API key. Authenticates the x402 facilitator at
+# https://api.cdp.coinbase.com/platform/v2/x402 — the only facilitator that
+# settles on Base mainnet and the only one that creates a Bazaar listing.
+CDP_API_KEY_ID=
+CDP_API_KEY_SECRET=
+
+# Optional. Throwaway Base wallet with a few dollars of USDC, used by
+# `npm run self-pay` and by the weekly cron keepalive. Leave blank to disable.
+BUYER_PRIVATE_KEY=
